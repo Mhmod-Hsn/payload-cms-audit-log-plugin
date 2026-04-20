@@ -1,6 +1,8 @@
+import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { auditLogPlugin } from 'audit-log-plugin';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import path from 'path';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
@@ -17,16 +19,17 @@ if (!process.env.ROOT_DIR) {
 }
 
 const buildConfigWithMemoryDB = async () => {
-  // if (process.env.NODE_ENV === 'test') {
-  //   const memoryDB = await MongoMemoryReplSet.create({
-  //     replSet: {
-  //       count: 3,
-  //       dbName: 'payloadmemory',
-  //     },
-  //   })
+  const isTesting = process.env.NODE_ENV === 'test'
+  if (isTesting) {
+    const memoryDB = await MongoMemoryReplSet.create({
+      replSet: {
+        count: 3,
+        dbName: 'payloadmemory',
+      },
+    })
 
-  //   process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
-  // }
+    process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
+  }
 
   return buildConfig({
     admin: {
@@ -57,7 +60,9 @@ const buildConfigWithMemoryDB = async () => {
         },
       },
     ],
-    db: sqliteAdapter({
+    db: isTesting ? mongooseAdapter({
+      url: process.env.DATABASE_URL || `mongodb://localhost:27017/payloadmemory`,
+    }) : sqliteAdapter({
       client: {
         url: process.env.DATABASE_URL || `file:${path.resolve(dirname, 'payload.db')}`,
       },
