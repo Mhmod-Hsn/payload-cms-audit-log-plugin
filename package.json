@@ -1,8 +1,17 @@
 {
-  "name": "audit-log-plugin",
+  "name": "payload-cms-audit-log-plugin",
   "version": "1.0.0",
   "description": "Audit log plugin for Payload CMS",
   "license": "MIT",
+  "homepage": "https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin/issues"
+  },
+  "author": "Mahmoud Hassan",
   "type": "module",
   "exports": {
     ".": {
@@ -28,6 +37,7 @@
   ],
   "scripts": {
     "build": "pnpm copyfiles && pnpm build:types && pnpm build:swc",
+    "prepublishOnly": "pnpm build",
     "build:swc": "swc ./src -d ./dist --config-file .swcrc --strip-leading-paths",
     "build:types": "tsc --outDir dist --rootDir ./src",
     "clean": "rimraf {dist,*.tsbuildinfo}",

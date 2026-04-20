@@ -1,10 +1,10 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { auditLogPlugin } from 'audit-log-plugin';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import path from 'path';
 import { buildConfig } from 'payload';
+import { auditLogPlugin } from 'payload-cms-audit-log-plugin';
 import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 

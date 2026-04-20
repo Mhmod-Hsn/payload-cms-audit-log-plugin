@@ -246,3 +246,4 @@ dev/generated-schema.graphql
 dist
 
 dev/src/uploads
+payload.db

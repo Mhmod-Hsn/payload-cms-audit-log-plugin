@@ -13,11 +13,11 @@ A [Payload CMS](https://payloadcms.com) plugin to automatically track and log CR
 ## Installation
 
 ```bash
-pnpm add audit-log-plugin
+pnpm add payload-cms-audit-log-plugin
 # or
-npm install audit-log-plugin
+npm install payload-cms-audit-log-plugin
 # or
-yarn add audit-log-plugin
+yarn add payload-cms-audit-log-plugin
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ Add the plugin to your Payload configuration:
 
 ```ts
 import { buildConfig } from 'payload'
-import { auditLogPlugin } from 'audit-log-plugin'
+import { auditLogPlugin } from 'payload-cms-audit-log-plugin'
 
 export default buildConfig({
   plugins: [

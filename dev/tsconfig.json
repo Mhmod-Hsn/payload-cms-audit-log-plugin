@@ -19,13 +19,13 @@
       "@payload-config": [
         "./payload.config.ts"
       ],
-      "audit-log-plugin": [
+      "payload-cms-audit-log-plugin": [
         "../src/index.ts"
       ],
-      "audit-log-plugin/client": [
+      "payload-cms-audit-log-plugin/client": [
         "../src/exports/client.ts"
       ],
-      "audit-log-plugin/rsc": [
+      "payload-cms-audit-log-plugin/rsc": [
         "../src/exports/rsc.ts"
       ]
     },
