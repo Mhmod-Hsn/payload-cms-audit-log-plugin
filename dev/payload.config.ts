@@ -1,7 +1,6 @@
 import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { auditLogPlugin } from 'audit-log-plugin';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import path from 'path';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
@@ -18,16 +17,16 @@ if (!process.env.ROOT_DIR) {
 }
 
 const buildConfigWithMemoryDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
-    const memoryDB = await MongoMemoryReplSet.create({
-      replSet: {
-        count: 3,
-        dbName: 'payloadmemory',
-      },
-    })
+  // if (process.env.NODE_ENV === 'test') {
+  //   const memoryDB = await MongoMemoryReplSet.create({
+  //     replSet: {
+  //       count: 3,
+  //       dbName: 'payloadmemory',
+  //     },
+  //   })
 
-    process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
-  }
+  //   process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
+  // }
 
   return buildConfig({
     admin: {
@@ -38,12 +37,17 @@ const buildConfigWithMemoryDB = async () => {
     collections: [
       {
         slug: 'users',
-        auth: true,
+        auth: true, 
         fields: [],
       },
       {
         slug: 'posts',
-        fields: [],
+        fields: [
+          {
+            name: 'title',
+            type: 'text',
+          },
+        ],
       },
       {
         slug: 'media',
@@ -88,3 +92,4 @@ const buildConfigWithMemoryDB = async () => {
 }
 
 export default buildConfigWithMemoryDB()
+ 

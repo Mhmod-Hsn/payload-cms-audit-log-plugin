@@ -1,52 +1,123 @@
-import type { Payload } from 'payload'
+import type { Payload } from 'payload';
 
-import config from '@payload-config'
-import { createPayloadRequest, getPayload } from 'payload'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-
-import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
+import config from '@payload-config';
+import { getPayload } from 'payload';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 let payload: Payload
 
-afterAll(async () => {
-  await payload.destroy()
-})
+const getAuditLogsCount = async () => {
+  const result = await payload.find({
+    collection: 'audit-logs',
+    limit: 0,
+  })
+  return result.totalDocs
+}
 
-beforeAll(async () => {
-  payload = await getPayload({ config })
-})
+const getAuditLogs = async (collection: string, documentId: number | string, operation: string) => {
+  return payload.find({
+    collection: 'audit-logs',
+    where: {
+      and: [
+        {
+          collection: { equals: collection },
+        },
+        {
+          documentId: { equals: String(documentId) },
+        },
+        {
+          operation: { equals: operation },
+        },
+      ],
+    },
+  })
+}
 
-describe('Plugin integration tests', () => {
-  test('should query custom endpoint added by plugin', async () => {
-    const request = new Request('http://localhost:3000/api/my-plugin-endpoint', {
-      method: 'GET',
-    })
-
-    const payloadRequest = await createPayloadRequest({ config, request })
-    const response = await customEndpointHandler(payloadRequest)
-    expect(response.status).toBe(200)
-
-    const data = await response.json()
-    expect(data).toMatchObject({
-      message: 'Hello from custom endpoint',
-    })
+describe('Audit Log Plugin Integration Tests', () => {
+  beforeAll(async () => {
+    payload = await getPayload({ config })
   })
 
-  test('can create post with custom text field added by plugin', async () => {
+  afterAll(async () => {
+    if (payload) {
+      await payload.destroy()
+    }
+  })
+
+  test('should create audit log on document creation', async () => {
+    const totalBefore = await getAuditLogsCount()
+
+    const post = await payload.create({
+      collection: 'posts',
+      data: { 
+        title: 'New Post',
+      },
+    })
+ 
+    const totalAfter = await getAuditLogsCount()
+    expect(totalAfter).toBe(totalBefore + 1)
+
+    const auditLogs = await getAuditLogs('posts', post.id, 'create') 
+    
+    expect(auditLogs.docs.length).toBeGreaterThan(0)
+    expect((auditLogs.docs[0].newData as any).id).toBe(post.id)
+    expect((auditLogs.docs[0].newData as any).title).toBe('New Post')
+  })
+ 
+  test('should create audit log on document update', async () => {
     const post = await payload.create({
       collection: 'posts',
       data: {
-        addedByPlugin: 'added by plugin',
+        title: 'Original Title',
       },
     })
-    expect(post.addedByPlugin).toBe('added by plugin')
+
+    const totalBefore = await getAuditLogsCount()
+
+    await payload.update({
+      id: post.id,
+      collection: 'posts',
+      data: {
+        title: 'Updated Title',
+      },
+    })
+
+    const totalAfter = await getAuditLogsCount()
+    expect(totalAfter).toBe(totalBefore + 1)
+
+    const auditLogs = await getAuditLogs('posts', post.id, 'update')
+    expect(auditLogs.docs.length).toBeGreaterThan(0)
+    expect((auditLogs.docs[0].originalData as any).title).toBe('Original Title')
+    expect((auditLogs.docs[0].newData as any).title).toBe('Updated Title')
   })
 
-  test('plugin creates and seeds plugin-collection', async () => {
-    expect(payload.collections['plugin-collection']).toBeDefined()
+  test('should create audit log on document deletion', async () => {
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: 'To Be Deleted',
+      },
+    })
 
-    const { docs } = await payload.find({ collection: 'plugin-collection' })
+    const totalBefore = await getAuditLogsCount()
 
-    expect(docs).toHaveLength(1)
+    await payload.delete({
+      id: post.id,
+      collection: 'posts',
+    })
+
+    const totalAfter = await getAuditLogsCount()
+    expect(totalAfter).toBe(totalBefore + 1)
+
+    const auditLogs = await getAuditLogs('posts', post.id, 'delete')
+    expect(auditLogs.docs.length).toBeGreaterThan(0)
+    expect((auditLogs.docs[0].originalData as any).title).toBe('To Be Deleted')
+  })
+
+  test('should respect the userCollection option', () => {
+    const auditLogsCollection = payload.collections['audit-logs'].config
+    const userField = auditLogsCollection.fields.find((f: any) => 'name' in f && f.name === 'user') as any
+    expect(userField.relationTo).toBe('users') 
   })
 })
+ 

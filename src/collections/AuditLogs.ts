@@ -41,6 +41,7 @@ export const getAuditLogsCollection = (userCollection: string = 'users'): Collec
     {
       name: 'user',
       type: 'relationship',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       relationTo: userCollection as any,
       required: false,
     },

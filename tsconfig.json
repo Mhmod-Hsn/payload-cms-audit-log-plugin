@@ -21,6 +21,7 @@
     "target": "ES2022",
     "composite": true,
     "paths": {
+      "@payload-config": ["./dev/payload.config.ts"],
       "audit-log-plugin": ["./src/index.ts"],
       "audit-log-plugin/client": ["./src/exports/client.ts"],
       "audit-log-plugin/rsc": ["./src/exports/rsc.ts"]

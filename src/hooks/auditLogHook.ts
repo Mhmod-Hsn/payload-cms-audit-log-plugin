@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import type {
 	CollectionAfterChangeHook,
 	CollectionAfterDeleteHook,
@@ -13,7 +14,7 @@ export const createAfterChangeHook = (): CollectionAfterChangeHook =>
         collection: 'audit-logs',
         data: {
           collection: collection.slug,
-          documentId: doc.id,
+          documentId: String(doc.id),
           newData: doc,
           operation,
           originalData: operation === 'update' ? previousDoc : null,
@@ -36,7 +37,7 @@ export const createAfterDeleteHook = (): CollectionAfterDeleteHook =>
         collection: 'audit-logs',
         data: {
           collection: collection.slug,
-          documentId: doc.id,
+          documentId: String(doc.id),
           operation: 'delete',
           originalData: doc,
           user: user?.id || null,
@@ -61,7 +62,7 @@ export const createAfterReadHook = (): CollectionAfterReadHook =>
         collection: 'audit-logs',
         data: {
           collection: collection.slug,
-          documentId: doc.id,
+          documentId: String(doc.id),
           newData: doc,
           operation: 'read',
           user: user?.id || null,
