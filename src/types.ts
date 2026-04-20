@@ -1,21 +1,20 @@
-export interface PluginTypes {
+import type { CollectionSlug } from 'payload';
+
+export type AuditLogOperation = 'create' | 'delete' | 'read' | 'update'
+
+export interface AuditLogConfig {
   /**
-   * Enable or disable plugin
-   * @default false
+   * List of collections to track and which operations to log for each.
    */
-  enabled?: boolean
+  collections: Partial<Record<CollectionSlug, {
+    operations: AuditLogOperation[]
+  }>>
   /**
-   * Collections to log
+   * Whether the plugin is disabled.
    */
-  collections?: string[]
+  disabled?: boolean
   /**
-   * Operations to log
-   * @default ['create', 'update', 'delete']
+   * The slug of the collection used for users. Defaults to 'users'.
    */
-  operations?: ('create' | 'update' | 'delete' | 'read')[]
-  /**
-   * The slug of the users collection
-   * @default 'users'
-   */
-  userCollection?: string
+  userCollection?: CollectionSlug
 }

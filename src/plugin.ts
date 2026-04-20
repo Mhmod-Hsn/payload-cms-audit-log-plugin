@@ -1,57 +1,73 @@
-import type { Plugin } from 'payload/config'
-import getAuditLogsCollection from './collections/AuditLogs'
+import type { Config } from 'payload';
+
+import type { AuditLogConfig } from './types.js';
+
+import { getAuditLogsCollection } from './collections/AuditLogs.js';
 import {
-  createAuditLogHook,
-  createDeleteAuditLogHook,
-  createReadAuditLogHook,
-} from './hooks/auditLogHook'
-import { onInitExtension } from './onInitExtension'
-import type { PluginTypes } from './types'
+  createAfterChangeHook,
+  createAfterDeleteHook,
+  createAfterReadHook
+} from './hooks/auditLogHook.js';
 
 export const auditLogPlugin =
-  (pluginOptions: PluginTypes): Plugin =>
-  incomingConfig => {
-    let config = { ...incomingConfig }
-
-    // If the plugin is disabled, return the config without modifying it
-    if (pluginOptions.enabled === false) {
+  (pluginOptions: AuditLogConfig) =>
+  (config: Config): Config => {
+    if (pluginOptions.disabled) {
       return config
     }
 
-    // Add Audit Logs collection
-    config.collections = [...(config.collections || []), getAuditLogsCollection(pluginOptions)]
+    const userCollection = pluginOptions.userCollection || 'users'
 
-    // Apply hooks to selected collections
-    if (pluginOptions.collections && pluginOptions.collections.length > 0) {
-      config.collections = config.collections.map(collection => {
-        if (pluginOptions.collections?.includes(collection.slug)) {
-          return {
-            ...collection,
-            hooks: {
-              ...(collection.hooks || {}),
-              afterChange: [
-                ...(collection.hooks?.afterChange || []),
-                createAuditLogHook(pluginOptions, collection.slug),
-              ],
-              afterDelete: [
-                ...(collection.hooks?.afterDelete || []),
-                createDeleteAuditLogHook(pluginOptions, collection.slug),
-              ],
-              afterRead: [
-                ...(collection.hooks?.afterRead || []),
-                createReadAuditLogHook(pluginOptions, collection.slug),
-              ],
-            },
-          }
-        }
-        return collection
-      })
+    // Add AuditLogs collection
+    if (!config.collections) {
+      config.collections = []
+    }
+    
+    // Check if audit-logs already exists to avoid duplicates
+    const auditLogsExists = config.collections.some(c => c.slug === 'audit-logs')
+    if (!auditLogsExists) {
+      config.collections.push(getAuditLogsCollection(userCollection))
     }
 
-    config.onInit = async payload => {
-      if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-      // Add additional onInit code by using the onInitExtension function
-      onInitExtension(pluginOptions, payload)
+    // Apply hooks to configured collections
+    if (pluginOptions.collections) {
+      config.collections = config.collections.map((collection) => {
+        const option = pluginOptions.collections[collection.slug]
+        
+        if (option) {
+          const { operations } = option
+          
+          if (!collection.hooks) {
+            collection.hooks = {}
+          }
+
+          // Handle Create and Update operations
+          if (operations.includes('create') || operations.includes('update')) {
+            if (!collection.hooks.afterChange) {
+              collection.hooks.afterChange = []
+            }
+            collection.hooks.afterChange.push(createAfterChangeHook())
+          }
+
+          // Handle Delete operation
+          if (operations.includes('delete')) {
+            if (!collection.hooks.afterDelete) {
+              collection.hooks.afterDelete = []
+            }
+            collection.hooks.afterDelete.push(createAfterDeleteHook())
+          }
+
+          // Handle Read operation
+          if (operations.includes('read')) {
+            if (!collection.hooks.afterRead) {
+              collection.hooks.afterRead = []
+            }
+            collection.hooks.afterRead.push(createAfterReadHook())
+          }
+        }
+
+        return collection
+      })
     }
 
     return config

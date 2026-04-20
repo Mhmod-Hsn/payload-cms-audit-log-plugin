@@ -1,109 +1,75 @@
-import {
-  CollectionAfterChangeHook,
-  CollectionAfterDeleteHook,
-  CollectionAfterReadHook,
-} from 'payload/types'
-import { PluginTypes } from '../types'
+import type {
+	CollectionAfterChangeHook,
+	CollectionAfterDeleteHook,
+	CollectionAfterReadHook
+} from 'payload';
 
-export const createAuditLogHook = (
-  pluginOptions: PluginTypes,
-  collectionSlug: string,
-): CollectionAfterChangeHook => {
-  return async ({ doc, previousDoc, operation, req }) => {
+export const createAfterChangeHook = (): CollectionAfterChangeHook => 
+  async ({ collection, doc, operation, previousDoc, req }) => {
     const { payload, user } = req
-    const operations = pluginOptions.operations || ['create', 'update', 'delete']
-
-    if (!operations.includes(operation)) {
-      return doc
-    }
 
     try {
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collectionSlug,
-          entityId: doc.id,
+          collection: collection.slug,
+          documentId: doc.id,
+          newData: doc,
           operation,
-          user: user?.id,
-          changes:
-            operation === 'update'
-              ? {
-                  before: previousDoc,
-                  after: doc,
-                }
-              : doc,
+          originalData: operation === 'update' ? previousDoc : null,
+          user: user?.id || null,
         },
       })
-    } catch (error) {
-      payload.logger.error(`Error creating audit log: ${error}`)
+    } catch (err) {
+      payload.logger.error(`Error creating audit log for ${operation} on ${collection.slug}: ${err}`)
     }
 
     return doc
   }
-}
 
-export const createDeleteAuditLogHook = (
-  pluginOptions: PluginTypes,
-  collectionSlug: string,
-): CollectionAfterDeleteHook => {
-  return async ({ doc, req }) => {
+export const createAfterDeleteHook = (): CollectionAfterDeleteHook => 
+  async ({ collection, doc, req }) => {
     const { payload, user } = req
-    const operations = pluginOptions.operations || ['create', 'update', 'delete']
-
-    if (!operations.includes('delete')) {
-      return
-    }
 
     try {
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collectionSlug,
-          entityId: doc.id,
+          collection: collection.slug,
+          documentId: doc.id,
           operation: 'delete',
-          user: user?.id,
-          changes: doc,
+          originalData: doc,
+          user: user?.id || null,
         },
       })
-    } catch (error) {
-      payload.logger.error(`Error creating audit log for delete: ${error}`)
+    } catch (err) {
+      payload.logger.error(`Error creating audit log for delete on ${collection.slug}: ${err}`)
     }
+
+    return doc
   }
-}
 
-export const createReadAuditLogHook = (
-  pluginOptions: PluginTypes,
-  collectionSlug: string,
-): CollectionAfterReadHook => {
-  return async ({ doc, req }) => {
+export const createAfterReadHook = (): CollectionAfterReadHook => 
+  async ({ collection, doc, req }) => {
+    // Only log read if it's not the audit-logs collection itself and we have a doc ID
+    if (collection.slug === 'audit-logs' || !doc?.id) {return doc}
+
     const { payload, user } = req
-    const operations = pluginOptions.operations || ['create', 'update', 'delete']
-
-    if (!operations.includes('read')) {
-      return doc
-    }
-
-    // Skip if it's an internal call without a user, or if we want to avoid logging every read in the admin UI
-    // Note: We might want a way to distinguish between 'api' reads and 'internal' reads
-    if (!user) {
-      return doc
-    }
 
     try {
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collectionSlug,
-          entityId: doc.id,
+          collection: collection.slug,
+          documentId: doc.id,
+          newData: doc,
           operation: 'read',
-          user: user?.id,
-          changes: doc,
+          user: user?.id || null,
         },
       })
-    } catch (error) {
-      payload.logger.error(`Error creating audit log for read: ${error}`)
+    } catch (err) {
+      payload.logger.error(`Error creating audit log for read on ${collection.slug}: ${err}`)
     }
 
     return doc
   }
-}

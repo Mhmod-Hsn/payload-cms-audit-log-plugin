@@ -1,66 +1,63 @@
-import { CollectionConfig } from 'payload/types';
-import { PluginTypes } from '../types';
+import type { CollectionConfig } from 'payload';
 
-const getAuditLogsCollection = (pluginOptions: PluginTypes): CollectionConfig => ({
+export const getAuditLogsCollection = (userCollection: string = 'users'): CollectionConfig => ({
   slug: 'audit-logs',
-  admin: {
-    useAsTitle: 'entityId',
-    defaultColumns: ['collection', 'operation', 'entityId', 'createdAt'],
-  },
   access: {
-    read: ({ req: { user } }) => !!user,
     create: () => false,
-    update: () => false,
     delete: () => false,
+    read: ({ req: { user } }) => !!user,
+    update: () => false,
+  },
+  admin: {
+    defaultColumns: ['collection', 'operation', 'user', 'createdAt'],
+    group: 'Admin',
+    useAsTitle: 'collection',
   },
   fields: [
     {
       name: 'collection',
       type: 'text',
+      index: true,
       required: true,
-      admin: {
-        readOnly: true,
-      },
     },
     {
-      name: 'entityId',
+      name: 'documentId',
       type: 'text',
+      index: true,
       required: true,
-      admin: {
-        readOnly: true,
-      },
     },
     {
       name: 'operation',
       type: 'select',
-      required: true,
+      index: true,
       options: [
-        { label: 'Create', value: 'create' },
+				{ label: 'Create', value: 'create' },
+        { label: 'Read', value: 'read' },
         { label: 'Update', value: 'update' },
         { label: 'Delete', value: 'delete' },
-        { label: 'Read', value: 'read' },
       ],
-      admin: {
-        readOnly: true,
-      },
+			required: true,
     },
     {
       name: 'user',
       type: 'relationship',
-      relationTo: pluginOptions.userCollection || 'users',
+      relationTo: userCollection as any,
       required: false,
+    },
+    {
+      name: 'originalData',
+      type: 'json',
       admin: {
-        readOnly: true,
+        condition: (data) => !!data?.originalData,
       },
     },
     {
-      name: 'changes',
+      name: 'newData',
       type: 'json',
       admin: {
-        readOnly: true,
+        condition: (data) => !!data?.newData,
       },
     },
   ],
+  timestamps: true,
 })
-
-export default getAuditLogsCollection;
