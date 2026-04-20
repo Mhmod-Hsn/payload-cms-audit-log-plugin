@@ -1,9 +1,9 @@
 {
-  "name": "@payloadcms/payload-plugin-template",
+  "name": "@payloadcms/payload-plugin-audit-log",
   "version": "0.0.0=1",
   "homepage:": "https://payloadcms.com",
-  "repository": "git@github.com:payloadcms/payload-plugin-template.git",
-  "description": "Blank plugin template for Payload",
+  "repository": "git@github.com:payloadcms/payload-plugin-audit-log.git",
+  "description": "Audit log plugin for Payload",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "keywords": [
@@ -12,7 +12,7 @@
     "plugin",
     "typescript",
     "react",
-    "template"
+    "audit-log"
   ],
   "scripts": {
     "build": "tsc",

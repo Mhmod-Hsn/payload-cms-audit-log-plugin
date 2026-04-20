@@ -4,8 +4,18 @@ export interface PluginTypes {
    * @default false
    */
   enabled?: boolean
-}
-
-export interface NewCollectionTypes {
-  title: string
+  /**
+   * Collections to log
+   */
+  collections?: string[]
+  /**
+   * Operations to log
+   * @default ['create', 'update', 'delete']
+   */
+  operations?: ('create' | 'update' | 'delete' | 'read')[]
+  /**
+   * The slug of the users collection
+   * @default 'users'
+   */
+  userCollection?: string
 }
