@@ -4,7 +4,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import path from 'path';
 import { buildConfig } from 'payload';
-import { auditLogPlugin } from 'payload-cms-audit-log-plugin';
+import { auditLogPlugin } from 'payload-audit-logs';
 import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 

@@ -9,13 +9,13 @@ export const getAuditLogsCollection = (userCollection: string = 'users'): Collec
     update: () => false,
   },
   admin: {
-    defaultColumns: ['collection', 'operation', 'user', 'createdAt'],
+    defaultColumns: ['entity', 'operation', 'user', 'createdAt'],
     group: 'Admin',
-    useAsTitle: 'collection',
+    useAsTitle: 'entity',
   },
   fields: [
     {
-      name: 'collection',
+      name: 'entity',
       type: 'text',
       index: true,
       required: true,

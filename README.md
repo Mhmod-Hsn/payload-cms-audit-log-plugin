@@ -1,4 +1,4 @@
-# Payload Audit Log Plugin
+# Payload Audit Logs
 
 A [Payload CMS](https://payloadcms.com) plugin to automatically track and log CRUD operations (Create, Read, Update, Delete) on specified collections.
 
@@ -13,11 +13,11 @@ A [Payload CMS](https://payloadcms.com) plugin to automatically track and log CR
 ## Installation
 
 ```bash
-pnpm add payload-cms-audit-log-plugin
+pnpm add payload-audit-logs
 # or
-npm install payload-cms-audit-log-plugin
+npm install payload-audit-logs
 # or
-yarn add payload-cms-audit-log-plugin
+yarn add payload-audit-logs
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ Add the plugin to your Payload configuration:
 
 ```ts
 import { buildConfig } from 'payload'
-import { auditLogPlugin } from 'payload-cms-audit-log-plugin'
+import { auditLogPlugin } from 'payload-audit-logs'
 
 export default buildConfig({
   plugins: [
@@ -73,7 +73,7 @@ You can specify which operations to log for each collection:
 
 ```ts
 import { buildConfig } from 'payload'
-import { auditLogPlugin } from 'audit-log-plugin'
+import { auditLogPlugin } from 'payload-audit-logs'
 
 export default buildConfig({
   plugins: [
@@ -103,7 +103,7 @@ When the plugin is enabled, it automatically adds an `Audit Logs` collection to 
 
 ### Fields
 
-- **Collection**: The slug of the collection where the operation occurred.
+- **Entity**: The slug of the collection where the operation occurred.
 - **Document ID**: The ID of the affected document.
 - **Operation**: The type of operation performed (`create`, `read`, `update`, or `delete`).
 - **User**: A relationship to the user who performed the operation.

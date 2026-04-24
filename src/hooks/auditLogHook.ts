@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import type {
-	CollectionAfterChangeHook,
-	CollectionAfterDeleteHook,
-	CollectionAfterReadHook
+    CollectionAfterChangeHook,
+    CollectionAfterDeleteHook,
+    CollectionAfterReadHook
 } from 'payload';
 
 export const createAfterChangeHook = (): CollectionAfterChangeHook => 
@@ -13,8 +13,8 @@ export const createAfterChangeHook = (): CollectionAfterChangeHook =>
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collection.slug,
           documentId: String(doc.id),
+          entity: collection.slug,
           newData: doc,
           operation,
           originalData: operation === 'update' ? previousDoc : null,
@@ -36,8 +36,8 @@ export const createAfterDeleteHook = (): CollectionAfterDeleteHook =>
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collection.slug,
           documentId: String(doc.id),
+          entity: collection.slug,
           operation: 'delete',
           originalData: doc,
           user: user?.id || null,
@@ -61,8 +61,8 @@ export const createAfterReadHook = (): CollectionAfterReadHook =>
       await payload.create({
         collection: 'audit-logs',
         data: {
-          collection: collection.slug,
           documentId: String(doc.id),
+          entity: collection.slug,
           newData: doc,
           operation: 'read',
           user: user?.id || null,

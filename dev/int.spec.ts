@@ -20,7 +20,7 @@ const getAuditLogs = async (collection: string, documentId: number | string, ope
     where: {
       and: [
         {
-          collection: { equals: collection },
+          entity: { equals: collection },
         },
         {
           documentId: { equals: String(documentId) },

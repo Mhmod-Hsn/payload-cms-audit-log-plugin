@@ -1,15 +1,15 @@
 {
-  "name": "payload-cms-audit-log-plugin",
-  "version": "1.0.0",
+  "name": "payload-audit-logs",
+  "version": "1.0.1",
   "description": "Audit log plugin for Payload CMS",
   "license": "MIT",
-  "homepage": "https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin#readme",
+  "homepage": "https://github.com/Mhmod-Hsn/payload-audit-logs#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin.git"
+    "url": "git+https://github.com/Mhmod-Hsn/payload-audit-logs.git"
   },
   "bugs": {
-    "url": "https://github.com/Mhmod-Hsn/payload-cms-audit-log-plugin/issues"
+    "url": "https://github.com/Mhmod-Hsn/payload-audit-logs/issues"
   },
   "author": "Mahmoud Hassan",
   "type": "module",
